@@ -1,0 +1,69 @@
+class Node:
+    def _init_(self, key):
+        self.left = None
+        self.right = None
+        self.val = key
+
+def preorden(root):
+    return [root.val] + preorden(root.left) + preorden(root.right) if root else []
+
+def inorden(root):
+    return inorden(root.left) + [root.val] + inorden(root.right) if root else []
+
+def posorden(root):
+    return posorden(root.left) + posorden(root.right) + [root.val] if root else []
+
+def build_tree(values):
+    if not values:
+        return None
+    iter_values = iter(values)
+    root = Node(next(iter_values))
+    queue = [root]
+    while queue:
+        node = queue.pop(0)
+        try:
+            left_val = next(iter_values)
+            if left_val != 'none':
+                node.left = Node(left_val)
+                queue.append(node.left)
+            right_val = next(iter_values)
+            if right_val != 'none':
+                node.right = Node(right_val)
+                queue.append(node.right)
+        except StopIteration:
+            break
+    return root
+
+def tree_to_textual(root):
+    if not root:
+        return ""
+    left_text = tree_to_textual(root.left)
+    right_text = tree_to_textual(root.right)
+    return f"{root.val}({left_text},{right_text})"
+
+def display_tree(node, level=0, is_left=True):
+    if node:
+        print("    " * level + ("|-- " if level else "") + node.val)
+        if node.left or node.right:
+            display_tree(node.left, level + 1, True)
+            display_tree(node.right, level + 1, False)
+    else:
+        print("    " * level + ("|-- " if level else "") + "None")
+
+# Entrada de valores del usuario
+values = input("Ingrese los valores del árbol en una sola línea separados por espacios (use 'none' para nulo): ").split()
+
+# Construcción del árbol
+root = build_tree(values)
+
+# Recorridos del árbol
+print("\nPreorden:", ' '.join(preorden(root)))
+print("\nInorden:", ' '.join(inorden(root)))
+print("\nPosorden:", ' '.join(posorden(root)))
+
+# Representación textual del árbol
+print("\nRepresentación textual del árbol:", tree_to_textual(root))
+
+# Representación gráfica del árbol
+print("\nRepresentación gráfica del árbol:")
+display_tree(root)
