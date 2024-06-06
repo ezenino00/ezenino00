@@ -1,0 +1,68 @@
+class Nodo:
+    def __init__(self, val):
+        self.val = val
+        self.izq = self.der = None
+
+def insertar(nodo, val):
+    if not nodo: return Nodo(val)
+    if val < nodo.val: nodo.izq = insertar(nodo.izq, val)
+    elif val > nodo.val: nodo.der = insertar(nodo.der, val)
+    return nodo
+
+def buscar(nodo, val):
+    if not nodo: return False
+    if nodo.val == val: return True
+    return buscar(nodo.izq, val) or buscar(nodo.der, val)
+
+def preorden(nodo): return [nodo.val] + preorden(nodo.izq) + preorden(nodo.der) if nodo else []
+def inorden(nodo): return inorden(nodo.izq) + [nodo.val] + inorden(nodo.der) if nodo else []
+def posorden(nodo): return posorden(nodo.izq) + posorden(nodo.der) + [nodo.val] if nodo else []
+
+def build_tree(vals):
+    if not vals: return None
+    iter_vals = iter(vals)
+    root = Nodo(next(iter_vals))
+    queue = [root]
+    while queue:
+        nodo = queue.pop(0)
+        try:
+            izq_val = next(iter_vals)
+            if izq_val != 'none':
+                nodo.izq = Nodo(izq_val)
+                queue.append(nodo.izq)
+            der_val = next(iter_vals)
+            if der_val != 'none':
+                nodo.der = Nodo(der_val)
+                queue.append(nodo.der)
+        except StopIteration:
+            break
+    return root
+
+def display_tree(nodo, lvl=0):
+    if nodo:
+        print("    " * lvl + ("|-- " if lvl else "") + str(nodo.val))
+        if nodo.izq or nodo.der:
+            display_tree(nodo.izq, lvl + 1)
+            display_tree(nodo.der, lvl + 1)
+    else:
+        print("    " * lvl + ("|-- " if lvl else "") + "None")
+
+if __name__ == "__main__":
+    while True:
+        metodo = input("¿Desea ingresar valores en preorden, inorden, posorden o al azar? (preorden/inorden/posorden/azar): ").strip().lower()
+        vals = [int(val) if val != 'none' else 'none' for val in input(f"Ingrese los valores del árbol en {metodo} separados por espacios (use 'none' para nulo): ").split()]
+        raiz = build_tree(vals)
+
+        if metodo == "preorden": print("\nInorden:", ' '.join(map(str, inorden(raiz)))); print("\nPosorden:", ' '.join(map(str, posorden(raiz))))
+        elif metodo == "inorden": print("\nPreorden:", ' '.join(map(str, preorden(raiz)))); print("\nPosorden:", ' '.join(map(str, posorden(raiz))))
+        elif metodo == "posorden": print("\nPreorden:", ' '.join(map(str, preorden(raiz)))); print("\nInorden:", ' '.join(map(str, inorden(raiz))))
+        else: print("\nPreorden:", ' '.join(map(str, preorden(raiz)))); print("\nInorden:", ' '.join(map(str, inorden(raiz)))); print("\nPosorden:", ' '.join(map(str, posorden(raiz))))
+
+        print("\nRepresentación gráfica del árbol:"); display_tree(raiz)
+
+        while True:
+            val_buscar = int(input("Ingrese un valor para buscar en el árbol: "))
+            print(f"El valor {val_buscar} {'SÍ' if buscar(raiz, val_buscar) else 'NO'} se encuentra en el árbol.")
+            if input("¿Desea buscar otro valor? (s/n): ").strip().lower() != 's': break
+
+        if input("¿Desea crear otro árbol o salir del programa? (nuevo/salir): ").strip().lower() == 'salir': break
